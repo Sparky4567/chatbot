@@ -8,7 +8,10 @@ import speech_recognition as sr
 from config import USE_TRANSLATION_SERVICE
 from config import SPEAK_BACK
 from config import USE_VOICE_INPUT
-# Connect to SQLite database (or create it if it doesn't exist)
+from config import ENABLE_OFFLINE_RECOGNITION
+from config import DEFAULT_MIC_TIMEOUT
+import threading
+
 conn = sqlite3.connect('chatbot_database.db')
 cursor = conn.cursor()
 
@@ -34,19 +37,76 @@ conn.commit()
 
 def recognize_speech():
     recognizer = sr.Recognizer()
-    recognizer.dynamic_energy_threshold = False
+    recognizer.dynamic_energy_threshold = True
     with sr.Microphone() as source:
         recognizer.adjust_for_ambient_noise(source)
-        print("\n\nSay something:\n\n")
-        audio = recognizer.listen(source,timeout=10.0)
+        print("\n{}\n".format("Okay, say something! [Google service]"))
+        audio = recognizer.listen(source, phrase_time_limit=DEFAULT_MIC_TIMEOUT, timeout=DEFAULT_MIC_TIMEOUT)
     try:
+        result = ""
         text = recognizer.recognize_google(audio)
-        return text
+        result = result + text
+        result = str(result).strip().lower()
+        if(result!=""):
+            return result
+        else:
+            print("\n\nCould not understand audio.\n\n")
+            recognize_speech()
+        
+    except sr.WaitTimeoutError:
+        print("\n\nRecognition timed out.\n\n")
+        recognize_speech()
     except sr.UnknownValueError:
-        return None
+        print("\n\nCould not understand audio.\n\n")
+        recognize_speech()
     except sr.RequestError as e:
-        return None
+        print("\n\Request error.\n\n")
+        recognize_speech()
 
+def recognize_speech_pocketsphinx():
+    # INITIATING RECOGNIZER
+        r = sr.Recognizer()
+        # STARTING TO LISTEN TO MIC INPUT
+        with sr.Microphone() as source:
+            print("\n{}\n".format("Okay, say something! [Sphinx]"))
+            # SETTING TIME LIMTIS
+            try:
+                r.adjust_for_ambient_noise(source)
+                r.dynamic_energy_threshold = True
+            except Exception as e:
+                print("\nException: {}\n".format(e))
+                recognize_speech_pocketsphinx
+            
+            try:
+                audio = r.listen(source,phrase_time_limit=DEFAULT_MIC_TIMEOUT,timeout=DEFAULT_MIC_TIMEOUT)
+                # SETTING A DEFAULT LANGUAGE
+                # AND STARTING RECOGNISER
+                result = r.recognize_sphinx(audio,language="en-US")
+                # WAITING FOR A RESULT AND RETURNING IT BACK
+                final_result = ""
+                final_result = final_result + str("{}".format(result)).lower().strip()
+                final_result = str(final_result).strip().lower()
+                if(final_result!=""):
+                    return final_result
+                else:
+                    print("\nSphinx Recognition could not understand audio\n")
+                    recognize_speech_pocketsphinx()
+            except sr.UnknownValueError:
+                # THE THINGY CAN NOT UNDERSTAND THE PHRASE, SO IT STARTS THE RECOGNITION AGAIN
+                print("\nSphinx Recognition could not understand audio\n")
+                recognize_speech_pocketsphinx()
+            except Exception as e:
+                # THE THINGY CAN NOT UNDERSTAND THE PHRASE, SO IT STARTS THE RECOGNITION AGAIN
+                if(str(e).lower().strip()=="" or str(e).lower().strip()==None):
+                    print("\nSorry, can not recognize\n")
+                    recognize_speech_pocketsphinx()
+                else:
+                    print("\nException: {e}\n")
+                    recognize_speech_pocketsphinx()
+            except sr.WaitTimeoutError:
+                print("\nTimeout\n")
+                recognize_speech_pocketsphinx()
+    
 
 def get_answers_from_database(question):
     # Check if the question exists in the database
@@ -150,7 +210,10 @@ def recognizer():
     user_input = input("\n\nPress 'r' to record\n\n")
 
     if user_input.lower() == 'r':
-        text = recognize_speech()
+        if(ENABLE_OFFLINE_RECOGNITION is False):
+            text = recognize_speech()
+        else:
+            text = recognize_speech_pocketsphinx()
 
         if text:
             # Use the 'text' variable for further processing
@@ -169,7 +232,14 @@ def chatbot():
 
     while True:
         online_status = is_online()
-        if(USE_VOICE_INPUT is True and online_status is True):
+        if(USE_VOICE_INPUT is True and online_status is True and ENABLE_OFFLINE_RECOGNITION is False):
+            print("\n\nUsing Google recogniser\n\n")
+            user_input = recognizer()
+        elif(USE_VOICE_INPUT is True and online_status is True and ENABLE_OFFLINE_RECOGNITION is True):
+            print("\n\nUsing Pocket Sphinx\n\n")
+            user_input = recognizer()
+        elif(USE_VOICE_INPUT is True and online_status is False and ENABLE_OFFLINE_RECOGNITION is True):
+            print("\n\nUsing Pocket Sphinx\n\n")
             user_input = recognizer()
         else:
             user_input = input("You: ")
