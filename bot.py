@@ -168,7 +168,7 @@ def chatbot():
     print("Welcome to the Chatbot! Type 'exit' to end the conversation.")
 
     while True:
-        if(USE_VOICE_INPUT is True):
+        if(USE_VOICE_INPUT is True and is_online() is True):
             user_input = recognizer()
         else:
             user_input = input("You: ")
