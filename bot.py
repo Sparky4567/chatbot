@@ -38,7 +38,7 @@ def recognize_speech():
     with sr.Microphone() as source:
         recognizer.adjust_for_ambient_noise(source)
         print("\n\nSay something:\n\n")
-        audio = recognizer.listen(source)
+        audio = recognizer.listen(source,timeout=10.0)
     try:
         text = recognizer.recognize_google(audio)
         return text
@@ -64,7 +64,7 @@ def get_answers_from_database(question):
 def is_online():
     try:
         # Try to send a request to a well-known server (e.g., Google's public DNS server)
-        response = requests.get("http://8.8.8.8", timeout=5)
+        response = requests.get("https://www.google.com/", timeout=5)
         response.raise_for_status()
         return True
     except requests.RequestException:
@@ -168,7 +168,8 @@ def chatbot():
     print("Welcome to the Chatbot! Type 'exit' to end the conversation.")
 
     while True:
-        if(USE_VOICE_INPUT is True and is_online() is True):
+        online_status = is_online()
+        if(USE_VOICE_INPUT is True and online_status is True):
             user_input = recognizer()
         else:
             user_input = input("You: ")
