@@ -69,7 +69,6 @@ class Main_Module:
                 user_input=str(input("\n\nWrite your answer:\n\n"))
                 return user_input
         else:
-            print("\n\n{}\n\n".format(self.offline_message))
             return passed_phrase
 
     def find_best_match(self,question):
@@ -110,6 +109,8 @@ class Main_Module:
                 self.cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answers[0]).lower()))
                 self.conn.commit()
         else:
+            if(self.is_online.is_online() is False):
+                    print("\n\n{}\n\n".format(self.offline_message))
             if(len(answers)>1):
                 for answer in answers:  
                     answer = self.return_translated_text(answer)
