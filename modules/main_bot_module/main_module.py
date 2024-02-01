@@ -11,6 +11,7 @@ from config import SIMILARITY_SCORE
 from modules.is_online.is_online import Is_Online
 from modules.speak_back.speak_module import Speak_Back
 from modules.speech_recognizers.speech_recognizers import Speech_recognizers
+from modules.random_emoji_module.random_emoji import Random_Emoji
 
 class Main_Module:
     def __init__(self):
@@ -20,6 +21,7 @@ class Main_Module:
         self.is_online = Is_Online()
         self.speak_module = Speak_Back()
         self.speech_recognizers = Speech_recognizers()
+        self.emoji_picker = Random_Emoji()
         self.offline_message = "Your offline. Translation services won't be used."
         
     def manage_database_creation(self):
@@ -183,7 +185,7 @@ class Main_Module:
                     if stored_answers:
                         answer = stored_answers
                         self.speak_module.speak_back(answer)
-                        print(f"Chatbot: {str(answer.upper())}")
+                        print(f"Chatbot: {str(answer.upper())} {self.emoji_picker.pick_random()}")
                     else:
                         new_answers = input("Chatbot: I don't know the answer. What should I say? (Separate multiple answers with |): ")
                         if(str(new_answers).__contains__("|")):
@@ -196,7 +198,7 @@ class Main_Module:
                     if stored_answers:
                         answer = stored_answers
                         self.speak_module.speak_back(answer)
-                        print(f"Chatbot: {str(answer.upper())}")
+                        print(f"Chatbot: {str(answer.upper())} {self.emoji_picker.pick_random()}")
                     else:
                         new_answers = input("Chatbot: I don't know the answer. What should I say? (Separate multiple answers with |): ")
                         if(str(new_answers).__contains__("|")):
