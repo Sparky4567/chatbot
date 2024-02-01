@@ -7,6 +7,7 @@ import speech_recognition as sr
 from config import USE_TRANSLATION_SERVICE
 from config import USE_VOICE_INPUT
 from config import ENABLE_OFFLINE_RECOGNITION
+from config import SIMILARITY_SCORE
 from modules.is_online.is_online import Is_Online
 from modules.speak_back.speak_module import Speak_Back
 from modules.speech_recognizers.speech_recognizers import Speech_recognizers
@@ -82,7 +83,7 @@ class Main_Module:
         stored_questions = [str(q) for q in stored_questions]
         # Using process.extractOne to find the best match
         result = process.extractOne(question, stored_questions, scorer=fuzz.ratio)
-        similarity_threshold = 70  # Adjust as needed
+        similarity_threshold = SIMILARITY_SCORE  # Adjust as needed
         if result and result[1] >= similarity_threshold:
             best_match, similarity_score = result
             return best_match, similarity_score
@@ -172,7 +173,7 @@ class Main_Module:
             best_match, similarity_score = self.find_best_match(user_input)
 
             # Check if similarity score is above a certain threshold
-            similarity_threshold = 70  # Adjust as needed
+            similarity_threshold = SIMILARITY_SCORE  # Adjust as needed
             
             if best_match is not None and similarity_score >= similarity_threshold:
                 stored_answers = self.get_answers_from_database(best_match)

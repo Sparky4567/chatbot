@@ -1,5 +1,5 @@
 # ========== MAIN SETTINGS ==========
-
+SIMILARITY_SCORE = 97
 USE_TRANSLATION_SERVICE = False
 SPEAK_BACK = True
 
