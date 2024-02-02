@@ -44,7 +44,7 @@ class Speech_recognizers:
                         print("\nSorry, can not recognize\n")
                         self.recognize_speech_pocketsphinx()
                     else:
-                        print("\nException: {e}\n")
+                        print("\nException: {}\n".format(e))
                         self.recognize_speech_pocketsphinx()
                 except sr.WaitTimeoutError:
                     print("\nTimeout\n")
