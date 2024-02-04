@@ -8,6 +8,8 @@ class Predefined_Commands:
         self.error = "Executing error"
         self.speak = Speak_Back()
         self.default_web_url = "https://www.google.com"
+        self.youtube_url = "https://www.youtube.com/"
+        self.google_url = "https://www.google.com/"
 
     def construct_command(self,command_name, passed_terminal_command):
         command = passed_terminal_command
@@ -17,6 +19,51 @@ class Predefined_Commands:
         except Exception:
             print("\n\n{}\n\n".format(self.error))
             return False
+        
+    def search_youtube(self,words,sentence,passed_url):
+        # OPENS NEW TAB AND CONSTRUCTS YOUTUBE SEARCH URL
+        if all(x in str(sentence).lower().split() for x in words):
+            new_sentence = sentence
+            for x in words:
+                new_sentence=str(new_sentence).replace(x,"").strip()
+            query_words = new_sentence.split()
+            youtube_url="{}results?search_query=".format(passed_url)
+            for word_index, word in enumerate(query_words):
+                if(word_index==0):
+                    youtube_url = "{}{}".format(youtube_url,word)
+                else:
+                    youtube_url = "{}+{}".format(youtube_url,word)
+            webbrowser.open_new_tab(youtube_url)
+            self.speak.speak_back("Searching youtube for {}".format(query_words))
+            return True
+        else:
+            return False
+        
+    def search_google(self,words,sentence,passed_url):
+        if all(x in str(sentence).lower().split() for x in words):
+            new_sentence = sentence
+            for x in words:
+                new_sentence=str(new_sentence).replace(x,"").strip()
+            query_words = new_sentence.split()
+            google_url="{}search?q=".format(passed_url)
+            for word_index, word in enumerate(query_words):
+                if(word_index==0):
+                    google_url = "{}{}".format(google_url,word)
+                else:
+                    google_url = "{}+{}".format(google_url,word)
+            self.speak.speak_back("Searching google for {}".format(query_words))
+            webbrowser.open_new_tab(google_url)
+            return True
+        else:
+            return False
+
+    def search_youtube_ini(self,passed_phrase):
+        res = self.search_youtube(["search","youtube","for"],passed_phrase,self.youtube_url)
+        return res
+    
+    def search_google_ini(self,passed_phrase):
+        res = self.search_google(["search","google","for"],passed_phrase,self.google_url)
+        return res
             
     def check_browser_command_list(self,passed_phrase):
         match passed_phrase:
@@ -42,6 +89,12 @@ class Predefined_Commands:
                 return res
             case "open new browser tab":
                 res = self.check_browser_command_list(passed_phrase)
+                return res
+            case passed_phrase if "search youtube for" in passed_phrase:
+                res = self.search_youtube_ini(passed_phrase)
+                return res
+            case passed_phrase if "search google for" in passed_phrase:
+                res = self.search_google_ini(passed_phrase)
                 return res
             case _:
                 print("\n\n{}\n\n".format(self.error_message))
