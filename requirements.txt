@@ -70,6 +70,7 @@ pycairo==1.20.1
 pycparser==2.21
 pycups==2.0.1
 pydub==0.25.1
+pyfiglet==1.0.2
 PyGObject==3.42.1
 PyJWT==2.3.0
 pymacaroons==0.13.0
