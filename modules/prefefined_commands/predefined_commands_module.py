@@ -16,6 +16,7 @@ class Predefined_Commands:
         try:
             self.speak.speak_back(command_name)
             subprocess.run(command, shell=True, check=True, text=True)
+            return True
         except Exception:
             print("\n\n{}\n\n".format(self.error))
             return False
@@ -82,8 +83,8 @@ class Predefined_Commands:
     def check_command_list(self,passed_phrase):
         match passed_phrase:
             case "open terminal":
-                self.construct_command("opening terminal","gnome-terminal")
-                return True
+                res = self.construct_command("opening terminal","gnome-terminal")
+                return res
             case "open browser":
                 res = self.check_browser_command_list(passed_phrase)
                 return res
