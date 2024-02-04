@@ -12,7 +12,9 @@ from modules.is_online.is_online import Is_Online
 from modules.speak_back.speak_module import Speak_Back
 from modules.speech_recognizers.speech_recognizers import Speech_recognizers
 from modules.random_emoji_module.random_emoji import Random_Emoji
-
+from modules.prefefined_commands.predefined_commands_module import Predefined_Commands
+from modules.logo_print_module.logo_module import Logo_Module
+from config import USE_PREDEFINED_COMMANDS
 class Main_Module:
     def __init__(self):
         self.temp = ""
@@ -23,6 +25,8 @@ class Main_Module:
         self.speech_recognizers = Speech_recognizers()
         self.emoji_picker = Random_Emoji()
         self.offline_message = "Your offline. Translation services won't be used."
+        self.predefined_commands = Predefined_Commands()
+        self.logo = Logo_Module()
         
     def manage_database_creation(self):
         
@@ -135,13 +139,18 @@ class Main_Module:
 
             if text:
                 # Use the 'text' variable for further processing
-                print(str("\n\nRecognized text:{}\n\n").format(text))
-                user_input=input("\n\nWant to approve question ? (y)\n\n")
-                if(str(user_input).lower()=="y"):
-                    recognized_phrase = text
-                    return recognized_phrase
-                else:
+                if(USE_PREDEFINED_COMMANDS is True and self.predefined_commands.check_command_list(str(text)) is True):
+                    print("\n\n{}\n\n".format("Recognized a predefined command and executing it"))
+                    print("\n\n{}\n\n".format("Reinitiating speech recognition"))
                     self.recognizer()
+                else:
+                    print(str("\n\nRecognized text:{}\n\n").format(text))
+                    user_input=input("\n\nWant to approve question ? (y)\n\n")
+                    if(str(user_input).lower()=="y"):
+                        recognized_phrase = text
+                        return recognized_phrase
+                    else:
+                        self.recognizer()
             else:
                 print("\n\nI did not manage to understand your voice input. Reinitiating.\n\n")
                 self.recognizer()
@@ -149,6 +158,7 @@ class Main_Module:
             self.recognizer()
 
     def chatbot(self):
+        self.logo.print_logo()
         print("Welcome to the Chatbot! Type 'exit' to end the conversation.")
 
         while True:
@@ -164,13 +174,19 @@ class Main_Module:
                 user_input = self.recognizer()
             else:
                 user_input = input("You: ")
+                user_input = str(user_input).lower()
 
             # Check for exit command
-            if str(user_input).lower() == 'exit':
+            if user_input == 'exit':
                 # Close the database connection when done
                 self.conn.close()
                 quit()
                 break
+
+            if(USE_PREDEFINED_COMMANDS is True and self.predefined_commands.check_command_list(user_input) is True):
+                print("\n\n{}\n\n".format("Recognized a predefined command and executing it"))
+                print("\n\n{}\n\n".format("Reinitiating speech recognition"))
+                self.chatbot()
 
             # Find the best matching question
             best_match, similarity_score = self.find_best_match(user_input)
