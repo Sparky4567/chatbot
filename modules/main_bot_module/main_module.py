@@ -12,7 +12,7 @@ from modules.is_online.is_online import Is_Online
 from modules.speak_back.speak_module import Speak_Back
 from modules.speech_recognizers.speech_recognizers import Speech_recognizers
 from modules.random_emoji_module.random_emoji import Random_Emoji
-from modules.prefefined_commands.predefined_commands_module import Predefined_Commands
+from modules.predefined_commands.predefined_commands_module import Predefined_Commands
 from modules.logo_print_module.logo_module import Logo_Module
 from config import USE_PREDEFINED_COMMANDS
 class Main_Module:
