@@ -80,18 +80,16 @@ class Predefined_Commands:
         res = self.search_google(["search","google","for"],passed_phrase,self.google_url)
         return res
             
-    def check_browser_command_list(self,passed_phrase):
+    def check_browser_command_list(self,passed_message,passed_phrase):
+        self.speak.speak_back(passed_message)
         match passed_phrase:
             case "open browser":
-                self.speak.speak_back("opening webbrowser")
                 webbrowser.open(self.default_web_url)
                 return True
             case "open new browser tab":
-                self.speak.speak_back("opening new browser tab")
                 webbrowser.open_new_tab(self.default_web_url)
                 return True
             case "open gpt":
-                self.speak.speak_back("opening chat gpt")
                 webbrowser.open(self.gpt_url)
                 return True
             case _:
@@ -128,13 +126,13 @@ class Predefined_Commands:
                 res = self.construct_output_command("list of a current directory",["ls","-la"])
                 return res
             case "open browser":
-                res = self.check_browser_command_list(passed_phrase)
+                res = self.check_browser_command_list("opening browser", passed_phrase)
                 return res
             case "open gpt":
-                res = self.check_browser_command_list(passed_phrase)
+                res = self.check_browser_command_list("opening chat gpt", passed_phrase)
                 return res
             case "open new browser tab":
-                res = self.check_browser_command_list(passed_phrase)
+                res = self.check_browser_command_list("opening new browser tab", passed_phrase)
                 return res
             case passed_phrase if "search youtube for" in passed_phrase:
                 res = self.search_youtube_ini(passed_phrase)
