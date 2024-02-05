@@ -101,7 +101,13 @@ class Predefined_Commands:
             case "open thunderbird":
                 res = self.construct_command("opening thunderbird email client",["thunderbird"])
                 return res
-            case "code":
+            case "open obsidian":
+                res = self.construct_command("opening obsidian notes",["obsidian"])
+                return res
+            case "open calculator":
+                res = self.construct_command("opening calculator",["gnome-calculator"])
+                return res
+            case "open vs code":
                 res = self.construct_command("opening vs code",["code","."])
                 return res
             case "list directory":
