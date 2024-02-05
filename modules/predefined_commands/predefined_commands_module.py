@@ -101,6 +101,9 @@ class Predefined_Commands:
             case "open thunderbird":
                 res = self.construct_command("opening thunderbird email client",["thunderbird"])
                 return res
+            case "code":
+                res = self.construct_command("opening vs code",["code","."])
+                return res
             case "list directory":
                 res = self.construct_output_command("list of a current directory",["ls","-la"])
                 return res
