@@ -104,6 +104,9 @@ class Predefined_Commands:
             case "open obsidian":
                 res = self.construct_command("opening obsidian notes",["obsidian"])
                 return res
+            case "open cheese":
+                res = self.construct_command("opening cheese application",["cheese"])
+                return res
             case "open calculator":
                 res = self.construct_command("opening calculator",["gnome-calculator"])
                 return res
