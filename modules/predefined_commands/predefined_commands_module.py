@@ -15,7 +15,20 @@ class Predefined_Commands:
         command = passed_terminal_command
         try:
             self.speak.speak_back(command_name)
-            subprocess.run(command, shell=True, check=True, text=True)
+            subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            return True
+        except Exception:
+            print("\n\n{}\n\n".format(self.error))
+            return False
+        
+    def construct_output_command(self,command_name, passed_terminal_command):
+        command = passed_terminal_command
+        try:
+            self.speak.speak_back(command_name)
+            result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
+            if result.returncode == 0:
+                print("\n\nCommand executed successfully\n\n")
+                print("Output:\n\n{}\n\n".format(result.stdout))
             return True
         except Exception:
             print("\n\n{}\n\n".format(self.error))
@@ -84,6 +97,12 @@ class Predefined_Commands:
         match passed_phrase:
             case "open terminal":
                 res = self.construct_command("opening terminal","gnome-terminal")
+                return res
+            case "open thunderbird":
+                res = self.construct_command("opening thunderbird email client",["thunderbird"])
+                return res
+            case "list directory":
+                res = self.construct_output_command("list of a current directory",["ls","-la"])
                 return res
             case "open browser":
                 res = self.check_browser_command_list(passed_phrase)
