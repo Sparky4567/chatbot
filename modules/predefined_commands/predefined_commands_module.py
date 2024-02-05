@@ -116,6 +116,9 @@ class Predefined_Commands:
             case "open vs code":
                 res = self.construct_command("opening vs code",["code","."])
                 return res
+            case "go to store":
+                res = self.construct_command("opening snap store",["snap-store"])
+                return res
             case "list directory":
                 res = self.construct_output_command("list of a current directory",["ls","-la"])
                 return res
