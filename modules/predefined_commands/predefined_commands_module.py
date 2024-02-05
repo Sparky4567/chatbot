@@ -10,6 +10,7 @@ class Predefined_Commands:
         self.default_web_url = "https://www.google.com"
         self.youtube_url = "https://www.youtube.com/"
         self.google_url = "https://www.google.com/"
+        self.gpt_url = "https://chat.openai.com/"
 
     def construct_command(self,command_name, passed_terminal_command):
         command = passed_terminal_command
@@ -89,6 +90,10 @@ class Predefined_Commands:
                 self.speak.speak_back("opening new browser tab")
                 webbrowser.open_new_tab(self.default_web_url)
                 return True
+            case "open gpt":
+                self.speak.speak_back("opening chat gpt")
+                webbrowser.open(self.gpt_url)
+                return True
             case _:
                 print("\n\n{}\n\n".format(self.error_message))
                 return False
@@ -123,6 +128,9 @@ class Predefined_Commands:
                 res = self.construct_output_command("list of a current directory",["ls","-la"])
                 return res
             case "open browser":
+                res = self.check_browser_command_list(passed_phrase)
+                return res
+            case "open gpt":
                 res = self.check_browser_command_list(passed_phrase)
                 return res
             case "open new browser tab":
