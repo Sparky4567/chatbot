@@ -110,6 +110,9 @@ class Predefined_Commands:
             case "open calculator":
                 res = self.construct_command("opening calculator",["gnome-calculator"])
                 return res
+            case "open office application":
+                res = self.construct_command("opening libre office",["libreoffice"])
+                return res
             case "open vs code":
                 res = self.construct_command("opening vs code",["code","."])
                 return res
