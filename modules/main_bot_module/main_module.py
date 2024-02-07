@@ -161,6 +161,8 @@ class Main_Module:
             else:
                 print("\n\nI did not manage to understand your voice input. Reinitiating.\n\n")
                 self.recognizer()
+        elif(user_input.lower()=="exit" or user_input.lower()=="end"):
+            quit()        
         else:
             self.recognizer()
 
