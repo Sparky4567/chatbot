@@ -1,7 +1,7 @@
 import subprocess
 import webbrowser
 from modules.speak_back.speak_module import Speak_Back
-
+from config import SPEAK_BACK
 class Predefined_Commands:
     def __init__(self):
         self.error_message = "Predefined command was not found"
@@ -11,28 +11,26 @@ class Predefined_Commands:
         self.youtube_url = "https://www.youtube.com/"
         self.google_url = "https://www.google.com/"
         self.gpt_url = "https://chat.openai.com/"
+        self.giphy_url = "https://giphy.com/"
 
     def construct_command(self,command_name, passed_terminal_command):
         command = passed_terminal_command
         try:
-            self.speak.speak_back(command_name)
+            if(SPEAK_BACK) is True:
+                self.speak.speak_back(command_name)
             subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             return True
         except Exception:
-            print("\n\n{}\n\n".format(self.error))
             return False
         
     def construct_output_command(self,command_name, passed_terminal_command):
         command = passed_terminal_command
         try:
-            self.speak.speak_back(command_name)
-            result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
-            if result.returncode == 0:
-                print("\n\nCommand executed successfully\n\n")
-                print("Output:\n\n{}\n\n".format(result.stdout))
+            if(SPEAK_BACK) is True:
+                self.speak.speak_back(command_name)
+            subprocess.run(command, stdout=subprocess.PIPE, text=True)
             return True
         except Exception:
-            print("\n\n{}\n\n".format(self.error))
             return False
         
     def search_youtube(self,words,sentence,passed_url):
@@ -71,6 +69,25 @@ class Predefined_Commands:
             return True
         else:
             return False
+        
+    def search_giphy(self,words,sentence,passed_url):
+        if all(x in str(sentence).lower().split() for x in words):
+            new_sentence = sentence
+            for x in words:
+                new_sentence=str(new_sentence).replace(x,"").strip()
+            query_words = new_sentence.split()
+            giphy_url="{}/search/".format(passed_url)
+            for word_index, word in enumerate(query_words):
+                if(word_index==0):
+                    giphy_url = "{}{}".format(giphy_url,word)
+                else:
+                    giphy_url = "{}-{}".format(giphy_url,word)
+            if(SPEAK_BACK is True):
+                self.speak.speak_back("Searching google for {}".format(query_words))
+            webbrowser.open_new_tab(giphy_url)
+            return True
+        else:
+            return False
 
     def search_youtube_ini(self,passed_phrase):
         res = self.search_youtube(["search","youtube","for"],passed_phrase,self.youtube_url)
@@ -78,6 +95,10 @@ class Predefined_Commands:
     
     def search_google_ini(self,passed_phrase):
         res = self.search_google(["search","google","for"],passed_phrase,self.google_url)
+        return res
+    
+    def search_giphy_ini(self,passed_phrase):
+        res = self.search_google(["search","giphy","for"],passed_phrase,self.giphy_url)
         return res
             
     def check_browser_command_list(self,passed_message,passed_phrase):
@@ -92,8 +113,10 @@ class Predefined_Commands:
             case "open gpt":
                 webbrowser.open(self.gpt_url)
                 return True
+            case "open giphy":
+                webbrowser.open(self.giphy_url)
+                return True
             case _:
-                print("\n\n{}\n\n".format(self.error_message))
                 return False
 
     def check_command_list(self,passed_phrase):
@@ -134,12 +157,17 @@ class Predefined_Commands:
             case "open new browser tab":
                 res = self.check_browser_command_list("opening new browser tab", passed_phrase)
                 return res
+            case "open giphy":
+                res = self.check_browser_command_list("opening new browser tab", passed_phrase)
+                return res
             case passed_phrase if "search youtube for" in passed_phrase:
                 res = self.search_youtube_ini(passed_phrase)
                 return res
             case passed_phrase if "search google for" in passed_phrase:
                 res = self.search_google_ini(passed_phrase)
                 return res
+            case passed_phrase if "search giphy for" in passed_phrase:
+                res = self.search_giphy_ini(passed_phrase)
+                return res
             case _:
-                print("\n\n{}\n\n".format(self.error_message))
                 return False

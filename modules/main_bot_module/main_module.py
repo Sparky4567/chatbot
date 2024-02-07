@@ -133,15 +133,22 @@ class Main_Module:
 
         if user_input.lower() == 'r':
             if(ENABLE_OFFLINE_RECOGNITION is False):
+                
                 text = self.speech_recognizers.recognize_speech()
+                if(text is False):
+                    print("/n/n{}/n/n".format("Recognition failure, trying again"))
+                    self.recognizer()
             else:
                 text = self.speech_recognizers.recognize_speech_pocketsphinx()
-
+                if(text is False):
+                    print("/n/n{}/n/n".format("Recognition failure, trying again"))
+                    self.recognizer()
             if text:
                 # Use the 'text' variable for further processing
                 if(USE_PREDEFINED_COMMANDS is True and self.predefined_commands.check_command_list(str(text)) is True):
                     print("\n\n{}\n\n".format("Recognized a predefined command and executing it"))
-                    print("\n\n{}\n\n".format("Reinitiating speech recognition"))
+                    if(USE_VOICE_INPUT is True):
+                        print("\n\n{}\n\n".format("Reinitiating speech recognition"))
                     self.recognizer()
                 else:
                     print(str("\n\nRecognized text:{}\n\n").format(text))
