@@ -15,6 +15,7 @@ from modules.random_emoji_module.random_emoji import Random_Emoji
 from modules.predefined_commands.predefined_commands_module import Predefined_Commands
 from modules.logo_print_module.logo_module import Logo_Module
 from config import USE_PREDEFINED_COMMANDS
+from config import CONTINUOUS_LEARNING
 class Main_Module:
     def __init__(self):
         self.temp = ""
@@ -127,44 +128,56 @@ class Main_Module:
                 self.cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answer).lower()))
                 self.conn.commit()
 
-   
-    def recognizer(self):
-        user_input = input("\n\nPress 'r' to record\n\n")
 
-        if user_input.lower() == 'r':
-            if(ENABLE_OFFLINE_RECOGNITION is False):
-                
-                text = self.speech_recognizers.recognize_speech()
-                if(text is False):
-                    print("/n/n{}/n/n".format("Recognition failure, trying again"))
-                    self.recognizer()
+    def recognizer_engine(self):
+        if(ENABLE_OFFLINE_RECOGNITION is False):
+            
+            text = self.speech_recognizers.recognize_speech()
+            if(text is False):
+                print("/n/n{}/n/n".format("Recognition failure, trying again"))
+                self.recognizer_engine()
+        else:
+            text = self.speech_recognizers.recognize_speech_pocketsphinx()
+            if(text is False):
+                print("/n/n{}/n/n".format("Recognition failure, trying again"))
+                self.recognizer_engine()
+        if text:
+            # Use the 'text' variable for further processing
+            if(USE_PREDEFINED_COMMANDS is True and self.predefined_commands.check_command_list(str(text)) is True):
+                print("\n\n{}\n\n".format("Recognized a predefined command and executing it"))
+                if(USE_VOICE_INPUT is True):
+                    print("\n\n{}\n\n".format("Reinitiating speech recognition"))
+                self.recognizer_engine()
             else:
-                text = self.speech_recognizers.recognize_speech_pocketsphinx()
-                if(text is False):
-                    print("/n/n{}/n/n".format("Recognition failure, trying again"))
-                    self.recognizer()
-            if text:
-                # Use the 'text' variable for further processing
-                if(USE_PREDEFINED_COMMANDS is True and self.predefined_commands.check_command_list(str(text)) is True):
-                    print("\n\n{}\n\n".format("Recognized a predefined command and executing it"))
-                    if(USE_VOICE_INPUT is True):
-                        print("\n\n{}\n\n".format("Reinitiating speech recognition"))
-                    self.recognizer()
-                else:
-                    print(str("\n\nRecognized text:{}\n\n").format(text))
+                print(str("\n\nRecognized text:{}\n\n").format(text))
+                if(CONTINUOUS_LEARNING is False):
                     user_input=input("\n\nWant to approve question ? (y)\n\n")
                     if(str(user_input).lower()=="y"):
                         recognized_phrase = text
                         return recognized_phrase
                     else:
-                        self.recognizer()
-            else:
-                print("\n\nI did not manage to understand your voice input. Reinitiating.\n\n")
-                self.recognizer()
-        elif(user_input.lower()=="exit" or user_input.lower()=="end"):
-            quit()        
+                        self.recognizer_engine()
+                else:
+                    recognized_phrase = text
+                    return recognized_phrase
+
         else:
-            self.recognizer()
+            print("\n\nI did not manage to understand your voice input. Reinitiating.\n\n")
+            self.recognizer_engine()
+   
+    def recognizer(self):
+        if(CONTINUOUS_LEARNING is False):
+            user_input = input("\n\nPress 'r' to record\n\n")
+            if user_input.lower() == 'r':
+                res = self.recognizer_engine()
+                return res
+            elif(user_input.lower()=="exit" or user_input.lower()=="end"):
+                quit()        
+            else:
+                self.recognizer()
+        else:
+            res = self.recognizer_engine()
+            return res
 
     def chatbot(self):
         self.logo.print_logo()
