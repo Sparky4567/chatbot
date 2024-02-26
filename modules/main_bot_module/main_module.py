@@ -177,6 +177,8 @@ class Main_Module:
                 self.recognizer()
         else:
             res = self.recognizer_engine()
+            if(res == "exit" or res =="end"):
+                quit()
             return res
 
     def chatbot(self):

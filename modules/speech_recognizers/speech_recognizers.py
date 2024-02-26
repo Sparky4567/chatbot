@@ -18,7 +18,7 @@ class Speech_recognizers:
                     r.dynamic_energy_threshold = True
                 except Exception as e:
                     print("\nException: {}\n".format(e))
-                    self.recognize_speech_pocketsphinx()
+                    return False
                 
                 try:
                     audio = r.listen(source,phrase_time_limit=DEFAULT_MIC_TIMEOUT,timeout=DEFAULT_MIC_TIMEOUT)
@@ -33,22 +33,22 @@ class Speech_recognizers:
                         return final_result
                     else:
                         print("\n{}\n".format(self.default_not_recognized_message))
-                        self.recognize_speech_pocketsphinx()
+                        return False
                 except sr.UnknownValueError:
                     # THE THINGY CAN NOT UNDERSTAND THE PHRASE, SO IT STARTS THE RECOGNITION AGAIN
                     print("\n{}\n".format(self.default_not_recognized_message))
-                    self.recognize_speech_pocketsphinx()
+                    return False
                 except Exception as e:
                     # THE THINGY CAN NOT UNDERSTAND THE PHRASE, SO IT STARTS THE RECOGNITION AGAIN
                     if(str(e).lower().strip()=="" or str(e).lower().strip()==None):
                         print("\nSorry, can not recognize\n")
-                        self.recognize_speech_pocketsphinx()
+                        return False
                     else:
                         print("\nException: {}\n".format(e))
-                        self.recognize_speech_pocketsphinx()
+                        return False
                 except sr.WaitTimeoutError:
                     print("\nTimeout\n")
-                    self.recognize_speech_pocketsphinx()
+                    return False
 
     def recognize_speech(self):
         recognizer = sr.Recognizer()
@@ -56,7 +56,11 @@ class Speech_recognizers:
         with sr.Microphone() as source:
             recognizer.adjust_for_ambient_noise(source)
             print("\n{}\n".format("Okay, say something! [Google service]"))
-            audio = recognizer.listen(source, phrase_time_limit=DEFAULT_MIC_TIMEOUT, timeout=DEFAULT_MIC_TIMEOUT)
+            try:
+                audio = recognizer.listen(source, phrase_time_limit=DEFAULT_MIC_TIMEOUT, timeout=DEFAULT_MIC_TIMEOUT)
+                print("\n\n{}\n\n".format("Timeout error"))
+            except:
+                return False
         try:
             result = ""
             text = str(recognizer.recognize_google(audio))
@@ -66,15 +70,13 @@ class Speech_recognizers:
                 return result
             else:
                 print("\n\n{}\n\n".format(self.default_google_not_recognized_message))
-                self.recognize_speech()
+                return False
             
         except sr.WaitTimeoutError:
-            print("\n\nRecognition timed out.\n\n")
-            self.recognize_speech()
+            return False
         except sr.UnknownValueError:
-            print("\n\n{}\n\n").format(self.default_google_not_recognized_message)
-            self.recognize_speech()
+            return False
         except sr.RequestError as e:
             print("\n\Request error.\n\n")
-            self.recognize_speech()
+            return False
 

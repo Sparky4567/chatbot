@@ -1,6 +1,10 @@
 import subprocess
 import webbrowser
 from modules.speak_back.speak_module import Speak_Back
+import asyncio
+from modules.local_llm.llm_module import Lama_Chat
+
+
 from config import SPEAK_BACK
 class Predefined_Commands:
     def __init__(self):
@@ -12,6 +16,7 @@ class Predefined_Commands:
         self.google_url = "https://www.google.com/"
         self.gpt_url = "https://chat.openai.com/"
         self.giphy_url = "https://giphy.com/"
+        self.chat = Lama_Chat()
 
     def construct_command(self,command_name, passed_terminal_command):
         command = passed_terminal_command
@@ -88,6 +93,24 @@ class Predefined_Commands:
             return True
         else:
             return False
+        
+    def ask_llm(self,words,sentence):
+        if all(x in str(sentence).lower().split() for x in words):
+            new_sentence = sentence
+            for x in words:
+                new_sentence=str(new_sentence).replace(x,"").strip()
+            query_words = new_sentence.split()
+            res = asyncio.run(self.chat.make_a_request())
+            res = str(res).strip()
+            if(SPEAK_BACK is True):
+                self.speak.speak_back("Asking local LLM using your input: {}".format(query_words))
+                self.speak.speak_back(res)
+                print("\n\n{}\n\n".format(res))
+            print("\n\n{}\n\n".format("Asking local LLM using your input: {}".format(query_words)))
+            print("\n\n{}\n\n".format(res))
+            return True
+        else:
+            return False
 
     def search_youtube_ini(self,passed_phrase):
         res = self.search_youtube(["search","youtube","for"],passed_phrase,self.youtube_url)
@@ -99,6 +122,10 @@ class Predefined_Commands:
     
     def search_giphy_ini(self,passed_phrase):
         res = self.search_google(["search","giphy","for"],passed_phrase,self.giphy_url)
+        return res
+    
+    def ask_llm__ini(self,passed_phrase):
+        res = self.ask_llm(["ask","llm"],passed_phrase)
         return res
             
     def check_browser_command_list(self,passed_message,passed_phrase):
@@ -168,6 +195,9 @@ class Predefined_Commands:
                 return res
             case passed_phrase if "search giphy for" in passed_phrase:
                 res = self.search_giphy_ini(passed_phrase)
+                return res
+            case passed_phrase if "ask llm" in passed_phrase:
+                res = self.ask_llm__ini(passed_phrase)
                 return res
             case _:
                 return False

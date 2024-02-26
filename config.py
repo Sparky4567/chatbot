@@ -28,3 +28,8 @@ DEFAULT_MIC_TIMEOUT = 10
 # ========== PREDEFINED COMMANDS USAGE ==========
 
 USE_PREDEFINED_COMMANDS = True
+
+
+# ========== AN ENDPOINT TO CONNECT WHITE RABBOT AND LOCAL LLM INSTANCES ==========
+
+DEFAULT_LLM_URL = "http://localhost:11434/api/generate"
