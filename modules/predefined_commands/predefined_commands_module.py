@@ -9,6 +9,7 @@ from config import USE_TRANSLATION_SERVICE
 from googletrans import Translator
 from config import SPEAK_BACK
 from config import DEFAULT_DB
+from time import sleep as pause
 class Predefined_Commands:
     def __init__(self):
         self.error_message = "Predefined command was not found"
@@ -158,20 +159,20 @@ class Predefined_Commands:
             true_flag = True
         if(true_flag is True):  
             res = asyncio.run(self.chat.make_a_request())
-            res = res[0]
-            res = str(res).strip().lower()
+            answer_from_bot = res[0]
+            answer_from_bot = str(answer_from_bot).strip().lower()
             query_words = res[1]
             query_words = str(query_words).strip().lower()
             print(query_words)
             if(SPEAK_BACK is True):
                 # self.speak.speak_back("Asking local LLM using your input: {}".format(query_words))
                 self.speak.speak_back(res)
-                print("\n\n{}\n\n".format(res))
+                print("\n\n{}\n\n".format(answer_from_bot))
             print("\n\n{}\n\n".format("Asking local LLM using your input: {}".format(str(query_words).lower())))
-            print("\n\n{}\n\n".format(res))
+            print("\n\n{}\n\n".format(answer_from_bot))
             user_approval = str(input("\n\nDo you want to save the response to local db? (y/n)\n\n").strip().lower())
             if(user_approval=="y"):
-                self.save_question_and_answers_to_database(str(query_words).lower(),[str(res).lower()])
+                self.save_question_and_answers_to_database(str(query_words).lower(),[str(answer_from_bot).lower()])
                 print("\n\n{}\n\n".format("The answer was saved !"))
             return True
         else:
