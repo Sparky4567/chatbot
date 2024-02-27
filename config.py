@@ -1,17 +1,17 @@
 # ========== MAIN SETTINGS ==========
 SIMILARITY_SCORE = 93
 USE_TRANSLATION_SERVICE = False
-SPEAK_BACK = False
+SPEAK_BACK = True
 
 # ========== VOICE INPUT ==========
 
 # ========== DEFAULT SETTING: MICROPHONE OFF ==========
 
-USE_VOICE_INPUT = False
+USE_VOICE_INPUT = True
 
 # ========== DEFAULT SETTING: FALSE, DOES NOT REQUIRE TO PRESS R KEY EVERYTIME ==========
 
-CONTINUOUS_LEARNING = False
+CONTINUOUS_LEARNING = True
 
 # ========== VOICE RECOGNITION ==========
 

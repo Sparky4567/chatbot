@@ -1,14 +1,16 @@
 import speech_recognition as sr
 from config import DEFAULT_MIC_TIMEOUT
-
+from pocketsphinx import LiveSpeech
 class Speech_recognizers:
     def __init__(self):
         self.default_not_recognized_message = "Sphinx Recognition could not understand audio."
         self.default_google_not_recognized_message = "Could not understand audio."
 
+
     def recognize_speech_pocketsphinx(self):
         # INITIATING RECOGNIZER
             r = sr.Recognizer()
+            r.dynamic_energy_threshold = True
             # STARTING TO LISTEN TO MIC INPUT
             with sr.Microphone() as source:
                 print("\n{}\n".format("Okay, say something! [Sphinx]"))
@@ -49,6 +51,8 @@ class Speech_recognizers:
                 except sr.WaitTimeoutError:
                     print("\nTimeout\n")
                     return False
+                except:
+                    return False
 
     def recognize_speech(self):
         recognizer = sr.Recognizer()
@@ -58,7 +62,6 @@ class Speech_recognizers:
             print("\n{}\n".format("Okay, say something! [Google service]"))
             try:
                 audio = recognizer.listen(source, phrase_time_limit=DEFAULT_MIC_TIMEOUT, timeout=DEFAULT_MIC_TIMEOUT)
-                print("\n\n{}\n\n".format("Timeout error"))
             except:
                 return False
         try:
@@ -79,4 +82,12 @@ class Speech_recognizers:
         except sr.RequestError as e:
             print("\n\Request error.\n\n")
             return False
+        except Exception as e:
+            # THE THINGY CAN NOT UNDERSTAND THE PHRASE, SO IT STARTS THE RECOGNITION AGAIN
+            if(str(e).lower().strip()=="" or str(e).lower().strip()==None):
+                print("\nSorry, can not recognize\n")
+                return False
+            else:
+                print("\nException: {}\n".format(e))
+                return False
 

@@ -40,8 +40,8 @@ class Predefined_Commands:
         
     def search_youtube(self,words,sentence,passed_url):
         # OPENS NEW TAB AND CONSTRUCTS YOUTUBE SEARCH URL
-        if all(x in str(sentence).lower().split() for x in words):
-            new_sentence = sentence
+        if all(x in str(sentence).lower().split() and x is not None for x in words ):
+            new_sentence = str(sentence)
             for x in words:
                 new_sentence=str(new_sentence).replace(x,"").strip()
             query_words = new_sentence.split()
@@ -58,8 +58,8 @@ class Predefined_Commands:
             return False
         
     def search_google(self,words,sentence,passed_url):
-        if all(x in str(sentence).lower().split() for x in words):
-            new_sentence = sentence
+        if all(x in str(sentence).lower().split() and x is not None for x in words):
+            new_sentence = str(sentence)
             for x in words:
                 new_sentence=str(new_sentence).replace(x,"").strip()
             query_words = new_sentence.split()
@@ -76,7 +76,7 @@ class Predefined_Commands:
             return False
         
     def search_giphy(self,words,sentence,passed_url):
-        if all(x in str(sentence).lower().split() for x in words):
+        if all(x in str(sentence).lower().split() and x is not None for x in words):
             new_sentence = sentence
             for x in words:
                 new_sentence=str(new_sentence).replace(x,"").strip()
@@ -88,15 +88,15 @@ class Predefined_Commands:
                 else:
                     giphy_url = "{}-{}".format(giphy_url,word)
             if(SPEAK_BACK is True):
-                self.speak.speak_back("Searching google for {}".format(query_words))
+                self.speak.speak_back("Searching giphy for {}".format(query_words))
             webbrowser.open_new_tab(giphy_url)
             return True
         else:
             return False
         
     def ask_llm(self,words,sentence):
-        if all(x in str(sentence).lower().split() for x in words):
-            new_sentence = sentence
+        if all(x in str(sentence).lower().split() for x in words and x is not None):
+            new_sentence = str(sentence)
             for x in words:
                 new_sentence=str(new_sentence).replace(x,"").strip()
             query_words = new_sentence.split()
@@ -121,7 +121,7 @@ class Predefined_Commands:
         return res
     
     def search_giphy_ini(self,passed_phrase):
-        res = self.search_google(["search","giphy","for"],passed_phrase,self.giphy_url)
+        res = self.search_giphy(["search","giphy","for"],passed_phrase,self.giphy_url)
         return res
     
     def ask_llm__ini(self,passed_phrase):
@@ -187,17 +187,17 @@ class Predefined_Commands:
             case "open giphy":
                 res = self.check_browser_command_list("opening new browser tab", passed_phrase)
                 return res
-            case passed_phrase if "search youtube for" in passed_phrase:
-                res = self.search_youtube_ini(passed_phrase)
+            case passed_phrase if "search youtube for" in str(passed_phrase) and hasattr(passed_phrase, '__iter__') is True:
+                res = self.search_youtube_ini(str(passed_phrase))
                 return res
-            case passed_phrase if "search google for" in passed_phrase:
-                res = self.search_google_ini(passed_phrase)
+            case passed_phrase if "search google for" in str(passed_phrase) and hasattr(passed_phrase, '__iter__') is True:
+                res = self.search_google_ini(str(passed_phrase))
                 return res
-            case passed_phrase if "search giphy for" in passed_phrase:
-                res = self.search_giphy_ini(passed_phrase)
+            case passed_phrase if "search giphy for" in str(passed_phrase) and hasattr(passed_phrase, '__iter__') is True:
+                res = self.search_giphy_ini(str(passed_phrase))
                 return res
-            case passed_phrase if "ask llm" in passed_phrase:
-                res = self.ask_llm__ini(passed_phrase)
+            case passed_phrase if "ask llm" in passed_phrase and hasattr(passed_phrase, '__iter__') is True:
+                res = self.ask_llm__ini(str(passed_phrase))
                 return res
             case _:
                 return False
