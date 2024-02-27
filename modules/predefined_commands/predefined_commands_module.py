@@ -23,8 +23,7 @@ class Predefined_Commands:
         self.chat = Lama_Chat()
         self.is_online = Is_Online()
         self.db_path = DEFAULT_DB
-        self.conn = sqlite3.connect(self.db_path)
-        self.cursor = self.conn.cursor()
+        
 
     def construct_command(self,command_name, passed_terminal_command):
         command = passed_terminal_command
@@ -119,39 +118,41 @@ class Predefined_Commands:
             return passed_phrase
         
     def save_question_and_answers_to_database(self,question, answers):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
         # Save the question to the questions table
-        self.cursor.execute('INSERT INTO questions (question) VALUES (?)', (question,))
-        self.conn.commit()
+        cursor.execute('INSERT INTO questions (question) VALUES (?)', (question,))
+        conn.commit()
 
         # Retrieve the question_id for the newly inserted question
-        self.cursor.execute('SELECT id FROM questions WHERE question = ?', (question,))
-        question_id = self.cursor.fetchone()[0]
+        cursor.execute('SELECT id FROM questions WHERE question = ?', (question,))
+        question_id = cursor.fetchone()[0]
 
         # Save each answer to the answers table, linked to the question
         if(self.is_online.is_online() is False):
             if(len(answers)>1):
                 for answer in answers:  
-                    self.cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answer).lower()))
-                    self.conn.commit()
-                    self.conn.close()
+                    cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answer).lower()))
+                    conn.commit()
+                    conn.close()
             else:
-                self.cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answers[0]).lower()))
-                self.conn.commit()
-                self.conn.close()
+                cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answers[0]).lower()))
+                conn.commit()
+                conn.close()
         else:
             if(self.is_online.is_online() is False):
                     print("\n\n{}\n\n".format(self.offline_message))
             if(len(answers)>1):
                 for answer in answers:  
                     answer = self.return_translated_text(answer)
-                    self.cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answer).lower()))
-                    self.conn.commit()
-                    self.conn.close()
+                    cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answer).lower()))
+                    conn.commit()
+                    conn.close()
             else:
                 answer = self.return_translated_text(answers[0])
-                self.cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answer).lower()))
-                self.conn.commit()
-                self.conn.close()
+                cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answer).lower()))
+                conn.commit()
+                conn.close()
         
     def ask_llm(self,words,sentence):
         true_flag = False
