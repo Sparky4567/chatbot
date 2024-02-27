@@ -120,11 +120,11 @@ class Lama_Chat:
                 json_objects = [obj + '}' for obj in data_list.split('}') if obj.strip()]
                 responses = [json.loads(obj)['response'] for obj in json_objects]
                 response_line = ''.join(responses)
-                bot_response = "\n\nBot response: {}\n\n".format(response_line) 
-                return bot_response
+                bot_response = "\n\n{}\n\n".format(response_line) 
+                return [bot_response,request_body["prompt"]]
             else:
                 response_line = "No response"
-                bot_response = "\n\nBot response: {}\n\n".format(response_line) 
-                return bot_response
+                bot_response = "\n\n{}\n\n".format(response_line) 
+                return [bot_response,request_body["prompt"]]
         except Exception as e:
             print("\n\nError: Reinitiating\n\n")

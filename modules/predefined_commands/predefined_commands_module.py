@@ -3,8 +3,10 @@ import webbrowser
 from modules.speak_back.speak_module import Speak_Back
 import asyncio
 from modules.local_llm.llm_module import Lama_Chat
-
-
+import sqlite3
+from modules.is_online.is_online import Is_Online
+from config import USE_TRANSLATION_SERVICE
+from googletrans import Translator
 from config import SPEAK_BACK
 class Predefined_Commands:
     def __init__(self):
@@ -17,6 +19,10 @@ class Predefined_Commands:
         self.gpt_url = "https://chat.openai.com/"
         self.giphy_url = "https://giphy.com/"
         self.chat = Lama_Chat()
+        self.is_online = Is_Online()
+        self.db_path = 'database/chatbot_database.db'
+        self.conn = sqlite3.connect(self.db_path)
+        self.cursor = self.conn.cursor()
 
     def construct_command(self,command_name, passed_terminal_command):
         command = passed_terminal_command
@@ -94,20 +100,72 @@ class Predefined_Commands:
         else:
             return False
         
+    def return_translated_text(self,passed_phrase):
+        if(USE_TRANSLATION_SERVICE is True):
+            translator = Translator()
+            # Detect the language of the input text
+            detected_language = translator.detect(passed_phrase).lang
+            # Translate the text to English (you can choose a different target language if needed)
+            translated_text = translator.translate(passed_phrase, src=detected_language, dest='en').text
+            user_approval=str(input(str("\n\nDo you want to approve translation: {}? (y)\n\n").format(translated_text)))
+            if(user_approval == "y"):
+                return translated_text
+            else:
+                user_input=str(input("\n\nWrite your answer:\n\n"))
+                return user_input
+        else:
+            return passed_phrase
+        
+    def save_question_and_answers_to_database(self,question, answers):
+        # Save the question to the questions table
+        self.cursor.execute('INSERT INTO questions (question) VALUES (?)', (question,))
+        self.conn.commit()
+
+        # Retrieve the question_id for the newly inserted question
+        self.cursor.execute('SELECT id FROM questions WHERE question = ?', (question,))
+        question_id = self.cursor.fetchone()[0]
+
+        # Save each answer to the answers table, linked to the question
+        if(self.is_online.is_online() is False):
+            if(len(answers)>1):
+                for answer in answers:  
+                    self.cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answer).lower()))
+                    self.conn.commit()
+            else:
+                self.cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answers[0]).lower()))
+                self.conn.commit()
+        else:
+            if(self.is_online.is_online() is False):
+                    print("\n\n{}\n\n".format(self.offline_message))
+            if(len(answers)>1):
+                for answer in answers:  
+                    answer = self.return_translated_text(answer)
+                    self.cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answer).lower()))
+                    self.conn.commit()
+            else:
+                answer = self.return_translated_text(answers[0])
+                self.cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answer).lower()))
+                self.conn.commit()
+        
     def ask_llm(self,words,sentence):
+        true_flag = False
         if all(x in str(sentence).lower().split() and x is not None for x in words):
-            new_sentence = str(sentence)
-            for x in words:
-                new_sentence=str(new_sentence).replace(x,"").strip()
-            query_words = new_sentence.split()
+            true_flag = True
+        if(true_flag is True):  
             res = asyncio.run(self.chat.make_a_request())
-            res = str(res).strip()
+            res = str(res[0]).strip().lower()
+            query_words = str(res[1]).strip().lower()
+            print(query_words)
             if(SPEAK_BACK is True):
-                self.speak.speak_back("Asking local LLM using your input: {}".format(query_words))
+                # self.speak.speak_back("Asking local LLM using your input: {}".format(query_words))
                 self.speak.speak_back(res)
                 print("\n\n{}\n\n".format(res))
-            print("\n\n{}\n\n".format("Asking local LLM using your input: {}".format(query_words)))
+            print("\n\n{}\n\n".format("Asking local LLM using your input: {}".format(str(query_words).lower())))
             print("\n\n{}\n\n".format(res))
+            user_approval = str(input("\n\nDo you want to save the response to local db? (y/n)\n\n").strip().lower())
+            if(user_approval=="y"):
+                self.save_question_and_answers_to_database(str(query_words).lower(),[str(res).lower()])
+                print("\n\n{}\n\n".format("The answer was saved !"))
             return True
         else:
             return False
