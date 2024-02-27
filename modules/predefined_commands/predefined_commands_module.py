@@ -95,7 +95,7 @@ class Predefined_Commands:
             return False
         
     def ask_llm(self,words,sentence):
-        if all(x in str(sentence).lower().split() for x in words and x is not None):
+        if all(x in str(sentence).lower().split() and x is not None for x in words):
             new_sentence = str(sentence)
             for x in words:
                 new_sentence=str(new_sentence).replace(x,"").strip()
