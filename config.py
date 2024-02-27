@@ -1,17 +1,17 @@
 # ========== MAIN SETTINGS ==========
 SIMILARITY_SCORE = 93
 USE_TRANSLATION_SERVICE = False
-SPEAK_BACK = True
+SPEAK_BACK = False
 
 # ========== VOICE INPUT ==========
 
 # ========== DEFAULT SETTING: MICROPHONE OFF ==========
 
-USE_VOICE_INPUT = True
+USE_VOICE_INPUT = False
 
 # ========== DEFAULT SETTING: FALSE, DOES NOT REQUIRE TO PRESS R KEY EVERYTIME ==========
 
-CONTINUOUS_LEARNING = True
+CONTINUOUS_LEARNING = False
 
 # ========== VOICE RECOGNITION ==========
 
@@ -33,3 +33,5 @@ USE_PREDEFINED_COMMANDS = True
 # ========== AN ENDPOINT TO CONNECT WHITE RABBOT AND LOCAL LLM INSTANCES ==========
 
 DEFAULT_LLM_URL = "http://localhost:11434/api/generate"
+
+DEFAULT_DB = "database/db.db"

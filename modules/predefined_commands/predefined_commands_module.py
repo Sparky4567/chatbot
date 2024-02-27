@@ -8,6 +8,7 @@ from modules.is_online.is_online import Is_Online
 from config import USE_TRANSLATION_SERVICE
 from googletrans import Translator
 from config import SPEAK_BACK
+from config import DEFAULT_DB
 class Predefined_Commands:
     def __init__(self):
         self.error_message = "Predefined command was not found"
@@ -20,7 +21,7 @@ class Predefined_Commands:
         self.giphy_url = "https://giphy.com/"
         self.chat = Lama_Chat()
         self.is_online = Is_Online()
-        self.db_path = 'database/chatbot_database.db'
+        self.db_path = DEFAULT_DB
         self.conn = sqlite3.connect(self.db_path)
         self.cursor = self.conn.cursor()
 
@@ -131,9 +132,11 @@ class Predefined_Commands:
                 for answer in answers:  
                     self.cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answer).lower()))
                     self.conn.commit()
+                    self.conn.close()
             else:
                 self.cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answers[0]).lower()))
                 self.conn.commit()
+                self.conn.close()
         else:
             if(self.is_online.is_online() is False):
                     print("\n\n{}\n\n".format(self.offline_message))
@@ -142,10 +145,12 @@ class Predefined_Commands:
                     answer = self.return_translated_text(answer)
                     self.cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answer).lower()))
                     self.conn.commit()
+                    self.conn.close()
             else:
                 answer = self.return_translated_text(answers[0])
                 self.cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answer).lower()))
                 self.conn.commit()
+                self.conn.close()
         
     def ask_llm(self,words,sentence):
         true_flag = False
@@ -153,8 +158,10 @@ class Predefined_Commands:
             true_flag = True
         if(true_flag is True):  
             res = asyncio.run(self.chat.make_a_request())
-            res = str(res[0]).strip().lower()
-            query_words = str(res[1]).strip().lower()
+            res = res[0]
+            res = str(res).strip().lower()
+            query_words = res[1]
+            query_words = str(query_words).strip().lower()
             print(query_words)
             if(SPEAK_BACK is True):
                 # self.speak.speak_back("Asking local LLM using your input: {}".format(query_words))

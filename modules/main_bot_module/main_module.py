@@ -16,10 +16,12 @@ from modules.predefined_commands.predefined_commands_module import Predefined_Co
 from modules.logo_print_module.logo_module import Logo_Module
 from config import USE_PREDEFINED_COMMANDS
 from config import CONTINUOUS_LEARNING
+from config import DEFAULT_DB
 class Main_Module:
     def __init__(self):
         self.temp = ""
-        self.conn = sqlite3.connect('database/chatbot_database.db')
+        self.db_path = DEFAULT_DB
+        self.conn = sqlite3.connect(self.db_path)
         self.cursor = self.conn.cursor()
         self.is_online = Is_Online()
         self.speak_module = Speak_Back()
