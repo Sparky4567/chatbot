@@ -90,7 +90,7 @@ class Predefined_Commands:
             for x in words:
                 new_sentence=str(new_sentence).replace(x,"").strip()
             query_words = new_sentence.split()
-            giphy_url="{}/search/".format(passed_url)
+            giphy_url="{}search/".format(passed_url)
             for word_index, word in enumerate(query_words):
                 if(word_index==0):
                     giphy_url = "{}{}".format(giphy_url,word)
