@@ -35,3 +35,4 @@ USE_PREDEFINED_COMMANDS = True
 DEFAULT_LLM_URL = "http://localhost:11434/api/generate"
 
 DEFAULT_DB = "database/db.db"
+DEFAULT_PDF_FOLDER = "pdf/"

@@ -5,16 +5,18 @@ import asyncio
 from modules.local_llm.llm_module import Lama_Chat
 import sqlite3
 from modules.is_online.is_online import Is_Online
+from modules.pdf_reader.pdf_reader_module import PDF_READER
 from config import USE_TRANSLATION_SERVICE
 from googletrans import Translator
 from config import SPEAK_BACK
 from config import DEFAULT_DB
-from time import sleep as pause
+
 class Predefined_Commands:
     def __init__(self):
         self.error_message = "Predefined command was not found"
         self.error = "Executing error"
         self.speak = Speak_Back()
+        self.pdf_reader = PDF_READER()
         self.default_web_url = "https://www.google.com"
         self.youtube_url = "https://www.youtube.com/"
         self.google_url = "https://www.google.com/"
@@ -153,6 +155,32 @@ class Predefined_Commands:
                 cursor.execute('INSERT INTO answers (question_id, answer) VALUES (?, ?)', (question_id, str(answer).lower()))
                 conn.commit()
                 conn.close()
+
+    def read_pdf(self,words,sentence):
+        true_flag = False
+        if all(x in str(sentence).lower().split() and x is not None for x in words):
+            true_flag = True
+        if(true_flag is True):  
+            res = self.pdf_reader.return_answer()
+            if(res is not False):
+                answer_from_bot = res[0]
+                answer_from_bot = str(answer_from_bot).strip().lower()
+                query_words = res[1]
+                query_words = str(query_words).strip().lower()
+                if(SPEAK_BACK is True):
+                    # self.speak.speak_back("Asking local LLM using your input: {}".format(query_words))
+                    self.speak.speak_back(res)
+                    print("\n\n{}\n\n".format(answer_from_bot))
+                print("\n\n{}\n\n".format("Asking local LLM using your input: {}".format(str(query_words).lower())))
+                print("\n\n{}\n\n".format(answer_from_bot))
+                user_approval = str(input("\n\nDo you want to save the response to local db? (y/n)\n\n").strip().lower())
+                if(user_approval=="y"):
+                    self.save_question_and_answers_to_database(str(query_words).lower(),[str(answer_from_bot).lower()])
+                    print("\n\n{}\n\n".format("The answer was saved !"))
+                return True
+            else:
+                return True
+ 
         
     def ask_llm(self,words,sentence):
         true_flag = False
@@ -193,6 +221,10 @@ class Predefined_Commands:
     
     def ask_llm__ini(self,passed_phrase):
         res = self.ask_llm(["ask","llm"],passed_phrase)
+        return res
+    
+    def read_pdf_ini(self,passed_phrase):
+        res = self.read_pdf(["read","pdf"],passed_phrase)
         return res
             
     def check_browser_command_list(self,passed_message,passed_phrase):
@@ -265,6 +297,9 @@ class Predefined_Commands:
                 return res
             case passed_phrase if "ask llm" in passed_phrase and hasattr(passed_phrase, '__iter__') is True:
                 res = self.ask_llm__ini(str(passed_phrase))
+                return res
+            case passed_phrase if "read pdf" in passed_phrase and hasattr(passed_phrase, '__iter__') is True:
+                res = self.read_pdf_ini(str(passed_phrase))
                 return res
             case _:
                 return False

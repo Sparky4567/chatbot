@@ -211,7 +211,8 @@ class Main_Module:
 
             if(USE_PREDEFINED_COMMANDS is True and self.predefined_commands.check_command_list(user_input) is True):
                 print("\n\n{}\n\n".format("Recognized a predefined command and executing it"))
-                print("\n\n{}\n\n".format("Reinitiating speech recognition"))
+                if(USE_VOICE_INPUT is True):
+                    print("\n\n{}\n\n".format("Reinitiating speech recognition"))
                 self.chatbot()
 
             # Find the best matching question
