@@ -1,9 +1,10 @@
 import sqlite3
 from fuzzywuzzy import fuzz, process
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
 import random
 from googletrans import Translator
-import requests
-import speech_recognition as sr
+import readline
 from config import USE_TRANSLATION_SERVICE
 from config import USE_VOICE_INPUT
 from config import ENABLE_OFFLINE_RECOGNITION
@@ -17,6 +18,8 @@ from modules.logo_print_module.logo_module import Logo_Module
 from config import USE_PREDEFINED_COMMANDS
 from config import CONTINUOUS_LEARNING
 from config import DEFAULT_DB
+from config import AUTOCOMPLETION_LIST
+
 class Main_Module:
     def __init__(self):
         self.temp = ""
@@ -30,6 +33,7 @@ class Main_Module:
         self.offline_message = "Your offline. Translation services won't be used."
         self.predefined_commands = Predefined_Commands()
         self.logo = Logo_Module()
+        self.options_list = AUTOCOMPLETION_LIST
         
     def manage_database_creation(self):
         
@@ -182,11 +186,18 @@ class Main_Module:
             if(res == "exit" or res =="end"):
                 quit()
             return res
+    def test_fun(self):
+        # List of commands
+        commands = self.options_list
+        # Create a WordCompleter with the list of commands
+        completer = WordCompleter(commands)
+        return completer
+
 
     def chatbot(self):
         self.logo.print_logo()
         print("Welcome to the Chatbot! Type 'exit' to end the conversation.")
-
+        complet = self.test_fun()
         while True:
             online_status = self.is_online.is_online()
             if(USE_VOICE_INPUT is True and online_status is True and ENABLE_OFFLINE_RECOGNITION is False):
@@ -199,7 +210,7 @@ class Main_Module:
                 print("\n\nUsing Pocket Sphinx\n\n")
                 user_input = self.recognizer()
             else:
-                user_input = input("You: ")
+                user_input = prompt("You: ",completer = complet)
                 user_input = str(user_input).lower()
 
             # Check for exit command

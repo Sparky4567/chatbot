@@ -34,5 +34,37 @@ USE_PREDEFINED_COMMANDS = True
 
 DEFAULT_LLM_URL = "http://localhost:11434/api/generate"
 
+
+# ========== DATABASE LOCATION ==========
+
 DEFAULT_DB = "database/db.db"
+
+
+# ========== PDF DIRECTORY ==========
+
+
 DEFAULT_PDF_FOLDER = "pdf/"
+
+# ========== AUTOCOMPLETION LIST ==========
+
+
+AUTOCOMPLETION_LIST = [
+                        "open browser",
+                        "open new browser tab",
+                        "open gpt",
+                        "open giphy",
+                        "open terminal",
+                        "open thunderbird",
+                        "open obsidian",
+                        "open cheese",
+                        "open calculator",
+                        "open office application",
+                        "open vs code",
+                        "go to store",
+                        "list directory",
+                        "search youtube for",
+                        "search google for",
+                        "search giphy for",
+                        "ask llm",
+                        "read pdf"
+                       ]
