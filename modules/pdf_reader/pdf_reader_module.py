@@ -8,6 +8,7 @@ class PDF_READER:
         self.pdf_folder_path = DEFAULT_PDF_FOLDER
         self.main_match = None
         self.no_answer_message = "No answer"
+        self.no_files = "You have no pdf files, add some"
 
     def update_variables(self,passed_match):
         self.main_match = passed_match
@@ -16,7 +17,13 @@ class PDF_READER:
     def return_answer(self):
         self.update_variables(None)
         file_list = os.listdir(self.pdf_folder_path)
-        if(len(file_list)!=0):
+        file_count = len(file_list)
+        if(file_count!=0):
+            if(file_count == 1):
+                file = str(file_list[0])
+                if(file.endswith(".py")):
+                    print("\n\n{}\n\n".format(self.no_files))
+                    return False
             user_query = str(input("\n\nEnter your question: \n\n"))
             user_query = str(user_query).strip().lower()
             if(user_query):
@@ -48,7 +55,7 @@ class PDF_READER:
             else:
                 self.return_answer()
         else:
-            print("\n\nYou have no pdf files, add some\n\n")
+            print("\n\n{}\n\n".format(self.no_files))
             return False
         
        
